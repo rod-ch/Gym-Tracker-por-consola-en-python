@@ -145,7 +145,7 @@ def ver_ejercicios():
         
         
     
-def buscar_por_id():
+def buscar_por_id(retornar=False):
    
     if not os.path.exists("ejercicios.csv"):
         print(f"\n{C_HEADER}--- Archivo no encontrado ---{RESET}")
@@ -161,17 +161,21 @@ def buscar_por_id():
         datos_encontrados = []
 
         with open("ejercicios.csv", "r", newline="", encoding="utf-8") as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    if row["id"] == valor:
-                        datos_encontrados.append(row)
-               
-                if datos_encontrados:
-                    print(f"\n{C_HEADER}--- Ejercicios Encontrados ---{RESET}")
-                    mostrar_tabla(datos_encontrados, True)
-                else:
-                    print(f"\n{C_ERROR}No se encontró un ejercicio con el ID '{valor}'.{RESET}\n")
-                pausar()
+           reader = csv.DictReader(file)
+           for row in reader:
+               if row["id"] == valor:
+                   datos_encontrados.append(row)
+          
+           if datos_encontrados:
+               print(f"\n{C_HEADER}--- Ejercicios Encontrados ---{RESET}")
+               mostrar_tabla(datos_encontrados, True)
+           else:
+               print(f"\n{C_ERROR}No se encontró un ejercicio con el ID '{valor}'.{RESET}\n")
+               pausar()
+           if not retornar:    
+               pausar()
+           else:
+               return datos_encontrados
 
 def cargar_datos(archivo = "ejercicios.csv"):
     datos_encontrados = []
@@ -184,7 +188,7 @@ def cargar_datos(archivo = "ejercicios.csv"):
 
 
      
-def buscar_por_nombre():
+def buscar_por_nombre(retornar=False):
     if not os.path.exists("ejercicios.csv"):
         print(f"\n{C_HEADER}--- Archivo no encontrado ---{RESET}")
         pausar()
@@ -194,17 +198,20 @@ def buscar_por_nombre():
         datos_encontrados = []
 
         with open("ejercicios.csv", "r", newline="", encoding="utf-8") as file:
-                reader = csv.DictReader(file)
-                for row in reader:
-                    if row["ejercicio"].lower() == valor.lower():
-                        datos_encontrados.append(row)
-                if datos_encontrados:
-                    print(f"\n{C_HEADER}--- Ejercicios Encontrados ---{RESET}")
-                    mostrar_tabla(datos_encontrados, True)
-                else:
-                    print(f"\n{C_ERROR}No se encontró un ejercicio con el nombre '{valor}'.{RESET}\n")
-                    
+            reader = csv.DictReader(file)
+            for row in reader:
+                if row["ejercicio"].lower() == valor.lower():
+                    datos_encontrados.append(row)
+            if datos_encontrados:
+                print(f"\n{C_HEADER}--- Ejercicios Encontrados ---{RESET}")
+                mostrar_tabla(datos_encontrados, True)
+            else:
+                print(f"\n{C_ERROR}No se encontró un ejercicio con el nombre '{valor}'.{RESET}\n")
                 pausar()
+            if not retornar:    
+                pausar()
+            else:
+                return datos_encontrados
 
 #buscar ejercicios
 def buscar_ejercicios():
@@ -439,13 +446,201 @@ def generar_mensaje_error_opciones(opciones):
     return mensaje_error
     
     
+def cambiar_por_id():
+    datos_encontrados = buscar_por_id(True)
+    archivo = 'ejercicios.csv'
+    if not datos_encontrados:
+        return
+    
+    print(f"\n{C_HEADER}--- Registrando Ejercicio #id: {datos_encontrados[0]["id"]} ---{RESET}")
+    
+    datos_encontrados[0]["ejercicio"] = input(f"{C_PROMPT}Ingresar ejercicio: {C_INPUT}")
+    print(RESET, end="") # Resetea el color amarillo después de que el usuario da Enter
+    
+    while True:
+        try:
+            sets = int(input(f"{C_PROMPT}Ingresar sets: {C_INPUT}"))
+            print(RESET, end="")
+            if 1 <= sets:
+                break
+            print(f"{C_ERROR}El número de sets debe ser mayor o igual a 1.{RESET}")
+        except ValueError:
+            # El RESET al inicio evita que el error se pinte de amarillo si falla el casteo a int()
+            print(f"{RESET}{C_ERROR}Por favor, ingresa un número válido para los sets.{RESET}")
+    datos_encontrados[0]["sets"] = str(sets)
+    
+    while True:
+        try:
+            reps = int(input(f"{C_PROMPT}Ingresar reps: {C_INPUT}"))
+            print(RESET, end="")
+            if 1 <= reps:
+                break
+            print(f"{C_ERROR}El número de reps debe ser mayor o igual a 1.{RESET}")
+        except ValueError:
+            print(f"{RESET}{C_ERROR}Por favor, ingresa un número válido para los reps.{RESET}")
+    datos_encontrados[0]["reps"] = str(reps)
+    
+    while True:
+        try:
+            peso = float(input(f"{C_PROMPT}Ingresar peso: {C_INPUT}"))
+            print(RESET, end="")
+            if 0 <= peso:
+                break
+            print(f"{C_ERROR}El peso debe ser mayor o igual a 0.{RESET}")
+        except ValueError:
+            print(f"{RESET}{C_ERROR}Por favor, ingresa un número válido para el peso.{RESET}")
+    datos_encontrados[0]["peso"] = str(peso)
+    
+    datos_encontrados[0]["nota"] = input(f"{C_PROMPT}Ingresar nota: {C_INPUT}")
+    print(RESET, end="")
+    
+    todos_los_datos = cargar_datos(archivo)
+    datos_actualizados = []
+    for row in todos_los_datos:
+        if row['id'] != datos_encontrados[0]["id"]:
+            datos_actualizados.append(row)
+        else:
+            datos_actualizados.append(datos_encontrados[0])
+
+    with open(archivo, "w", newline="", encoding="utf-8") as file:
+        titulos_columnas = ["id", "fecha", "ejercicio", "sets", "reps", "peso", "nota"]
+        writer = csv.DictWriter(file, fieldnames=titulos_columnas)
+        writer.writeheader()
+        for row in datos_actualizados:
+            writer.writerow(row) 
+        print(f"\n{C_HEADER}Ejercicio modificado correctamente.{RESET}\n")
+
+    pausar()
+    
+def cambiar_por_nombre():
+    # array de los nombres coincidentes que busca el usuario
+    datos_encontrados = buscar_por_nombre(True)
+    if not datos_encontrados:
+        return
+    archivo = "ejercicios.csv"
+    opciones_permitidas = []
+    for row in datos_encontrados:
+        opciones_permitidas.append(row['id'])
+    
+    mensage_error = generar_mensaje_error_opciones(opciones_permitidas)
+    while True:
+        print("¿Cuál de estos deseas cambiar? (Usa los IDs para elegir).")
+        eleccion = input(f"{C_PROMPT}Selecciona el ID: {C_INPUT}").strip()
+        if eleccion  in opciones_permitidas:
+            break
+        print(f"{C_ERROR}{mensage_error}.{RESET}")  
+    i = 0   
+    for row in datos_encontrados:
+        if row['id'] == eleccion:
+            
+            break
+        i = i + 1
+    
+    dato_midificar = datos_encontrados[i]
+    print(f"\n{C_HEADER}--- Registrando Ejercicio #id: {dato_midificar["id"]} ---{RESET}")
+        
+    dato_midificar["ejercicio"] = input(f"{C_PROMPT}Ingresar ejercicio: {C_INPUT}")
+    print(RESET, end="") # Resetea el color amarillo después de que el usuario da Enter
+    
+    while True:
+        try:
+            sets = int(input(f"{C_PROMPT}Ingresar sets: {C_INPUT}"))
+            print(RESET, end="")
+            if 1 <= sets:
+                break
+            print(f"{C_ERROR}El número de sets debe ser mayor o igual a 1.{RESET}")
+        except ValueError:
+            # El RESET al inicio evita que el error se pinte de amarillo si falla el casteo a int()
+            print(f"{RESET}{C_ERROR}Por favor, ingresa un número válido para los sets.{RESET}")
+    dato_midificar["sets"] = str(sets)
+    
+    while True:
+        try:
+            reps = int(input(f"{C_PROMPT}Ingresar reps: {C_INPUT}"))
+            print(RESET, end="")
+            if 1 <= reps:
+                break
+            print(f"{C_ERROR}El número de reps debe ser mayor o igual a 1.{RESET}")
+        except ValueError:
+            print(f"{RESET}{C_ERROR}Por favor, ingresa un número válido para los reps.{RESET}")
+    dato_midificar["reps"] = str(reps)
+    
+    while True:
+        try:
+            peso = float(input(f"{C_PROMPT}Ingresar peso: {C_INPUT}"))
+            print(RESET, end="")
+            if 0 <= peso:
+                break
+            print(f"{C_ERROR}El peso debe ser mayor o igual a 0.{RESET}")
+        except ValueError:
+            print(f"{RESET}{C_ERROR}Por favor, ingresa un número válido para el peso.{RESET}")
+    dato_midificar["peso"] = str(peso)
+    
+    dato_midificar["nota"] = input(f"{C_PROMPT}Ingresar nota: {C_INPUT}")
+    print(RESET, end="")
+    
+        
+        
+    todos_los_datos = cargar_datos(archivo)
+    datos_actualizados = []
+    for row in todos_los_datos:
+        if row['id'] != eleccion:
+            datos_actualizados.append(row)
+        else:
+            datos_actualizados.append(dato_midificar)
+
+    with open(archivo, "w", newline="", encoding="utf-8") as file:
+        titulos_columnas = ["id", "fecha", "ejercicio", "sets", "reps", "peso", "nota"]
+        writer = csv.DictWriter(file, fieldnames=titulos_columnas)
+        writer.writeheader()
+        for row in datos_actualizados:
+            writer.writerow(row) 
+        print(f"\n{C_HEADER}Ejercicio modificado correctamente.{RESET}\n")
+
+    pausar()
+        
+    
+
+    
+        
+    
+    
+            
+    
+                    
+    
     
     
     
 
 #modificar ejercicios
 def modificar_ejercicios():
-    print("Modificando ejercicios...")
+    while True:
+        print(f"\n{C_HEADER}================================={RESET}")
+        print(f"{C_HEADER}        BUSCAR EJERCICIO         {RESET}")
+        print(f"{C_HEADER}================================={RESET}")
+        print(f"  [{C_INPUT}1{RESET}] {C_TEXTO}Buscar por ID{RESET}")
+        print(f"  [{C_INPUT}2{RESET}] {C_TEXTO}Buscar por Nombre de Ejercicio{RESET}")
+        print(f"  [{C_INPUT}0{RESET}] {C_TEXTO}Volver al menú principal{RESET}\n")
+        
+        opcion = input(f"{C_PROMPT}Selecciona el método de búsqueda: {C_INPUT}").strip()
+        print(RESET, end="")
+        
+        match opcion:
+            case "1":
+                cambiar_por_id()
+                break  
+            case "2":
+                cambiar_por_nombre()
+                break
+            case "0":
+                break
+            case _:
+                # Error handling para opciones inválidas
+                print(f"\n{C_ERROR}⚠ Opción inválida. Por favor, ingresa 1, 2 o 0.{RESET}") 
+    
+
+    
 
 #análisis de ejercicios
 def analisis_ejercicios():
