@@ -1,3 +1,7 @@
 venv/
 __pycache__/
 *.pyc
+ejercicios.csv
+ejercicios_10k.csv
+next_id.txt
+test.py
