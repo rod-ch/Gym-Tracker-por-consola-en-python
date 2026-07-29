@@ -452,6 +452,20 @@ def cambiar_por_id():
     if not datos_encontrados:
         return
     
+    while True:
+        x = input(f"\n{C_PROMPT}¿Deseas modificar este ejercicio? (s/n): {C_INPUT}").strip().lower()
+        print(RESET, end="")
+        if x == 's':
+            break  # Salimos del bucle para proceder a eliminar
+        elif x == 'n':
+            print(f"\n{C_HEADER}Operación cancelada. No se eliminó ningún ejercicio.{RESET}\n")
+            pausar()
+            return
+        else:
+            print(f"{C_ERROR}Opción inválida. Por favor, ingresa 's' o 'n'.{RESET}")
+    
+    
+    
     print(f"\n{C_HEADER}--- Registrando Ejercicio #id: {datos_encontrados[0]["id"]} ---{RESET}")
     
     datos_encontrados[0]["ejercicio"] = input(f"{C_PROMPT}Ingresar ejercicio: {C_INPUT}")
@@ -537,6 +551,21 @@ def cambiar_por_nombre():
         i = i + 1
     
     dato_midificar = datos_encontrados[i]
+    x = [dato_midificar]
+    mostrar_tabla(x, True)
+    while True:
+            x = input(f"\n{C_PROMPT}¿Deseas modificar este ejercicio? (s/n): {C_INPUT}").strip().lower()
+            print(RESET, end="")
+            if x == 's':
+                break  # Salimos del bucle para proceder a eliminar
+            elif x == 'n':
+                print(f"\n{C_HEADER}Operación cancelada. No se eliminó ningún ejercicio.{RESET}\n")
+                pausar()
+                return
+            else:
+                print(f"{C_ERROR}Opción inválida. Por favor, ingresa 's' o 'n'.{RESET}")
+    
+    
     print(f"\n{C_HEADER}--- Registrando Ejercicio #id: {dato_midificar["id"]} ---{RESET}")
         
     dato_midificar["ejercicio"] = input(f"{C_PROMPT}Ingresar ejercicio: {C_INPUT}")
