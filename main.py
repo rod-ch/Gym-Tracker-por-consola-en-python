@@ -1,6 +1,7 @@
 import csv
 import os
 import time
+import plotext as plt
 C_HEADER = '\033[1;96m'  # Cyan negrita
 C_PROMPT = '\033[92m'    # Verde
 C_INPUT = '\033[93m'     # Amarillo
@@ -188,7 +189,7 @@ def cargar_datos(archivo = "ejercicios.csv"):
 
 
      
-def buscar_por_nombre(retornar=False):
+def buscar_por_nombre(retornar=False,imprimir=True):
     if not os.path.exists("ejercicios.csv"):
         print(f"\n{C_HEADER}--- Archivo no encontrado ---{RESET}")
         pausar()
@@ -202,16 +203,17 @@ def buscar_por_nombre(retornar=False):
             for row in reader:
                 if row["ejercicio"].lower() == valor.lower():
                     datos_encontrados.append(row)
-            if datos_encontrados:
+            if datos_encontrados and imprimir:
                 print(f"\n{C_HEADER}--- Ejercicios Encontrados ---{RESET}")
                 mostrar_tabla(datos_encontrados, True)
-            else:
+            elif not datos_encontrados and imprimir:
                 print(f"\n{C_ERROR}No se encontró un ejercicio con el nombre '{valor}'.{RESET}\n")
                 pausar()
             if not retornar:    
                 pausar()
+                return
             else:
-                return datos_encontrados
+                return datos_encontrados,valor
 
 #buscar ejercicios
 def buscar_ejercicios():
@@ -673,9 +675,31 @@ def modificar_ejercicios():
 
 #análisis de ejercicios
 def analisis_ejercicios():
-    print("Analizando ejercicios...")
+    datos, valor = buscar_por_nombre(True, False)
+    peso = {}
+    for row in datos:
+        yy_mm_dd = row["fecha"]
+        peso[yy_mm_dd] = row["peso"]
+    
+    datos_ordenados =  sorted(peso.items())
+    
+    show_plot(datos_ordenados, valor)
+    pausar()
 
-
+def show_plot(data, nombre_ejercicio):
+    plt.clear_figure()
+    plt.date_form("Y-m-d") 
+    fechas, pesos_texto = zip(*data)
+    pesos_numeros = [float(peso) for peso in pesos_texto]
+    
+    plt.plot(fechas, pesos_numeros, marker="fhd", color="cyan", fillx=True)
+    
+    plt.title(f"Progreso de peso a lo largo del tiempo: {nombre_ejercicio}")
+    plt.xlabel("Fecha")
+    plt.ylabel("Peso")
+    plt.show()
+     
+    
 
 
 
