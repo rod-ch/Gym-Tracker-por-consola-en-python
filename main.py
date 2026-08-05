@@ -318,8 +318,6 @@ def eliminar_por_id():
         pausar()
 
 
-    
-
             
 def mostrar_tabla(rows, con_id=True):
     """Imprime una lista de registros como tabla formateada."""
