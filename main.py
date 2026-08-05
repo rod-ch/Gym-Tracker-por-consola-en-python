@@ -628,19 +628,7 @@ def cambiar_por_nombre():
 
     pausar()
         
-    
 
-    
-        
-    
-    
-            
-    
-                    
-    
-    
-    
-    
 
 #modificar ejercicios
 def modificar_ejercicios():
@@ -674,14 +662,39 @@ def modificar_ejercicios():
 #análisis de ejercicios
 def analisis_ejercicios():
     datos, valor = buscar_por_nombre(True, False)
+    if not datos:
+        print(f"{C_ERROR}No se encontraron ejercicios con ese nombre.{RESET}")
+        pausar()
+        return
     peso = {}
+    volumen_total = []
     for row in datos:
         yy_mm_dd = row["fecha"]
         peso[yy_mm_dd] = row["peso"]
+        volumen_total.append(int(row["sets"]) * int(row["reps"]) * float(row["peso"]))
     
     datos_ordenados =  sorted(peso.items())
     
-    show_plot(datos_ordenados, valor)
+    peso, fechas = show_plot(datos_ordenados, valor)
+    peso_max = max(peso)
+    indice_max = peso.index(peso_max)
+    fecha_max = fechas[indice_max]
+    peso_promedio = sum(peso) / len(peso)
+    sesiones_cantidad = len(peso)
+
+    # Impresión en terminal
+    print(f"\n{C_HEADER}╭─────────────────────────────────────────╮{RESET}")
+    print(f"{C_HEADER}│       📊 REPORTE DE RENDIMIENTO         │{RESET}")
+    print(f"{C_HEADER}╰─────────────────────────────────────────╯{RESET}")
+    print(f"  {C_PROMPT}🏋️   Récord Máximo:  {RESET} {C_PESO}{peso_max} kg{RESET}")
+    print(f"  {C_PROMPT}📅  Fecha del Récord Máximo:          {RESET} {C_FECHA}{fecha_max}{RESET}")
+    print(f"  {C_PROMPT}📈  Peso Promedio:  {RESET} {C_INPUT}{peso_promedio:.2f} kg{RESET}")
+    print(f"  {C_PROMPT}📈  Volumen Total:  {RESET} {C_INPUT}{sum(volumen_total):.2f} kg{RESET}")
+
+    print(f"  {C_PROMPT}📝  Total Sesiones: {RESET} {C_REPS}{sesiones_cantidad}{RESET}\n")
+    print(f"  {C_TEXTO}💡 Info: Este indicador muestra el pico máximo")
+    print(f"           registrado, la primera fecha en que lo")
+    print(f"           alcanzaste y el resumen de tu volumen.{RESET}\n")
     pausar()
 
 def show_plot(data, nombre_ejercicio):
@@ -696,6 +709,7 @@ def show_plot(data, nombre_ejercicio):
     plt.xlabel("Fecha")
     plt.ylabel("Peso")
     plt.show()
+    return pesos_numeros, fechas
      
     
 
